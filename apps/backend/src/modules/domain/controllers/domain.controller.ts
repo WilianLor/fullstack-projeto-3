@@ -2,10 +2,13 @@ import { Request, Response } from "express";
 import Domain from "../../../schemas/domain.schema";
 import User from "../../../schemas/user.schema";
 import { redis } from "../../../config/redis.config";
+import { sanitizeInput } from "../../../utils/sanitize";
 
 const createDomain = async (req: Request, res: Response) => {
   const userId = (req as any).userId as string;
-  const { domain } = req.body;
+  let { domain } = req.body;
+
+  domain = sanitizeInput(domain);
 
   if (!domain) {
     return res.json({
@@ -43,7 +46,9 @@ const listUserDomains = async (req: Request, res: Response) => {
 };
 
 const verifyDomain = async (req: Request, res: Response) => {
-  const { domain } = req.body;
+  let { domain } = req.body;
+
+  domain = sanitizeInput(domain);
 
   const cacheDomain = await redis.get(domain);
 

@@ -5,19 +5,30 @@ import { generateToken } from "../../../utils/token.utils";
 import jwt from "jsonwebtoken";
 import { refreshTokenSecret } from "../../../constants/secrets";
 import { GenerateTokenParams } from "../types";
+import { sanitizeInput } from "../../../utils/sanitize";
 
 const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  if (!username || !password)
+  const sanitizeUsername = sanitizeInput(username);
+  const sanitizePassword = sanitizeInput(password);
+
+  if (typeof sanitizeUsername !== 'string' || typeof sanitizePassword !== 'string') {
+    return res.json({
+      status: "error",
+      message: "Os campos de usuário e senha são obrigatórios e devem ser strings!",
+    });
+  }
+
+  if (!sanitizeUsername || !sanitizePassword)
     return res.json({
       status: "error",
       message: "Os campos de usuário e senha são obrigatórios!",
     });
 
-  const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({ username:sanitizeUsername }).select("+password");
 
-  if (!user || !(await compare(password, user.password))) {
+  if (!user || !(await compare(sanitizePassword, user.password))) {
     return res.json({ status: "error", message: "Usuário ou senha ivalidos" });
   }
 

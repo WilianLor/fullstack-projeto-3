@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { GenerateTokenParams } from "../modules/auth/types/utils.types";
+import { GenerateTokenParams } from "../modules/auth/types/index";
 import { acessTokenSecret, refreshTokenSecret } from "../constants/secrets";
 
 export const generateToken = (
